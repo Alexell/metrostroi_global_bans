@@ -14,6 +14,8 @@ util.AddNetworkString("MGB.AddVote")
 MGB.BadPlayers = {}
 MGB.WaitPlayers = {}
 MGB.BannedPlayers = {}
+MGB.NeedBadNotice = false
+MGB.NeedWaitNotice = false
 
 net.Receive("MGB.Peports",function(ln,ply)
 	local sid = net.ReadString()
@@ -97,16 +99,14 @@ local function GetBadPlayers()
 			return
 		end
 		if (body == "" or body == "Not found") then return end
-		if body == "Not found" then
-			tab.result = "С сервера "..GetHostName().." уже отправляли репорт на этого игрока!"
-		end
+		if (body == "" or body == "Not found") then return end
 		MGB.BadPlayers = util.JSONToTable(body)
 	end)
 end
 
 local function GetWaitPlayers()
 	local params = {act="getwait",host=GetHostName(),ip=game.GetIPAddress()}
-	local wait_players = http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
+	http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
 		if code ~= 200 then
 			print("[MGB] Web request failed! Code: "..code)
 			return
@@ -118,7 +118,7 @@ end
 
 local function GetBannedPlayers()
 	local params = {act="getban",host=GetHostName(),ip=game.GetIPAddress()}
-	local banned_players = http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
+	http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
 		if code ~= 200 then
 			print("[MGB] Web request failed! Code: "..code)
 			return
@@ -140,9 +140,36 @@ local function GetAPIData(updater)
 	GetBannedPlayers()
 	
 	if updater then
-		--TODO: сравниваем списки и оповещаем о новых игроках в чат и как то оповещаем админов после их спавна
+		-- проверяем необходимость оповестить админов
+		timer.Create("MGB.Notifier",3,1,function()
+			if MGB.NeedBadNotice == false then
+				for k,v in pairs(MGB.BadPlayers) do
+					local finded = false
+					for k2,v2 in pairs(BadPlayers) do
+						if v.sid == v2.sid then finded = true end
+					end
+					if finded == false then
+						MGB.NeedBadNotice = true
+						break
+					end
+				end
+			end
+			if MGB.NeedWaitNotice == false then
+				for k,v in pairs(MGB.WaitPlayers) do
+					local finded = false
+					for k2,v2 in pairs(WaitPlayers) do
+						if v.sid == v2.sid then finded = true end
+					end
+					if finded == false then
+						MGB.NeedWaitNotice = true
+						break
+					end
+				end
+			end
+		end)
 	end
 end
+
 timer.Create("MGB.Init",1,1,function() GetAPIData(false) end)
 timer.Create("MGB.Updater",300,0,function() GetAPIData(true) end)
 
@@ -154,5 +181,19 @@ hook.Add("PlayerButtonDown","MGB.ShowMenu",function(ply,key)
 			net.WriteTable(MGB.WaitPlayers)
 			net.WriteTable(MGB.BannedPlayers)
 		net.Send(ply)
+	end
+end)
+
+-- оповещаем админов по двум спискам
+hook.Add("PlayerInitialSpawn", "MGB.AdminNotice",function(ply)
+	if ply:IsAdmin() then
+		if MGB.NeedBadNotice == true then
+			ply:ChatPrint("Появились новые игроки с репортами.\nПроверьте Metrostroi Global Bans!")
+			MGB.NeedBadNotice = false
+		end
+		if MGB.NeedWaitNotice == true then
+			ply:ChatPrint("Появились новые игроки в голосовании за бан.\nПроверьте Metrostroi Global Bans!")
+			MGB.NeedWaitNotice = false
+		end
 	end
 end)
