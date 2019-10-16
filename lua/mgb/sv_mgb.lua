@@ -11,6 +11,7 @@ util.AddNetworkString("MGB.MainMenu")
 util.AddNetworkString("MGB.Peports")
 util.AddNetworkString("MGB.AddReport")
 util.AddNetworkString("MGB.AddVote")
+util.AddNetworkString("MGB.Events")
 MGB.BadPlayers = {}
 MGB.WaitPlayers = {}
 MGB.BannedPlayers = {}
@@ -128,6 +129,20 @@ local function GetBannedPlayers()
 	end)
 end
 
+local function GetEvents()
+	local params = {act="getevents",host=GetHostName(),ip=game.GetIPAddress()}
+	http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
+		if code ~= 200 then
+			print("[MGB] Web request failed! Code: "..code)
+			return
+		end
+		if (body == "" or body == "Not found") then return end
+		net.Start("MGB.Events")
+			net.WriteTable(util.JSONToTable(body))
+		net.Broadcast()
+	end)
+end
+
 local function GetAPIData(updater)
 	-- получаем последние загруженные списки
 	local BadPlayers = MGB.BadPlayers
@@ -171,7 +186,7 @@ local function GetAPIData(updater)
 end
 
 timer.Create("MGB.Init",1,1,function() GetAPIData(false) end)
-timer.Create("MGB.Updater",300,0,function() GetAPIData(true) end)
+timer.Create("MGB.Updater",60,0,function() GetAPIData(true) GetEvents() end)
 
 hook.Add("PlayerButtonDown","MGB.ShowMenu",function(ply,key)
 	if (key == KEY_F6 and ply:IsAdmin()) then
@@ -188,11 +203,11 @@ end)
 hook.Add("PlayerInitialSpawn", "MGB.AdminNotice",function(ply)
 	if ply:IsAdmin() then
 		if MGB.NeedBadNotice == true then
-			ply:ChatPrint("Появились новые игроки с репортами.\nПроверьте Metrostroi Global Bans!")
+			ply:ChatPrint("[MGB] Появились новые игроки с репортами!")
 			MGB.NeedBadNotice = false
 		end
 		if MGB.NeedWaitNotice == true then
-			ply:ChatPrint("Появились новые игроки в голосовании за бан.\nПроверьте Metrostroi Global Bans!")
+			ply:ChatPrint("[MGB] Появились новые игроки в голосовании за бан!")
 			MGB.NeedWaitNotice = false
 		end
 	end
