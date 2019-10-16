@@ -24,6 +24,13 @@ local function SendReport(sid,nick,report)
 	net.SendToServer()
 end
 
+local function SendVote(sid,vote)
+	net.Start("MGB.AddVote")
+		net.WriteString(sid)
+		net.WriteString(vote)
+	net.SendToServer()
+end
+
 local function AddReport(sid,nick)
 	local frame = vgui.Create("DFrame")
 	frame:SetTitle("Отправка репорта на игрока "..nick)
@@ -69,6 +76,10 @@ local function AddReport(sid,nick)
 	send:SetText("Отправить")
 	
 	send.DoClick = function()
+		if (report:GetText() == "") then
+			Derma_Message("Укажите текст репорта!","Отправка репорта на игрока "..nick,"OK")
+			return
+		end
 		SendReport(sid,nick,report:GetText())
 		frame:Close()
 	end
@@ -82,10 +93,10 @@ local function ShowPeports(reports,nick)
 		frame:SetTitle("Репорты на игрока "..nick)
 		frame:SetIcon("icon16/error.png")
 		local w = 400
-		local h = 250
+		local h = 295
 		-- перфекционизм
-		if #reports == 1 then h = 105 end
-		if #reports == 2 then h = 180 end
+		if #reports == 1 then h = 120 end
+		if #reports == 2 then h = 210 end
 		if #reports > 3 then w = 415 end -- смещение на скролл-бар
 		
 		frame:SetSize(w,h)
@@ -100,7 +111,7 @@ local function ShowPeports(reports,nick)
 			panel:SetBackgroundColor(Color(255,255,150))
 			panel:Dock(TOP)
 			panel:DockMargin(3,3,3,5 )
-			panel:SetSize(400,65)
+			panel:SetSize(400,80)
 			local label = vgui.Create("DLabel",panel)
 			label:SetPos(10,5)
 			label:SetText("Сервер: "..v.server.." | Дата: "..v.date)
@@ -108,7 +119,7 @@ local function ShowPeports(reports,nick)
 			label:SetDark(1)
 			local note = vgui.Create("DTextEntry",panel)
 			note:SetPos(10,25)
-			note:SetSize(365,30)
+			note:SetSize(365,45)
 			note:SetText(v.note)
 			note:SetMultiline(true)
 			note.AllowInput = function() -- блокировка от изменения
@@ -242,15 +253,15 @@ local function ShowMainMenu(bads,waits,bans)
 			local menu = DermaMenu()
 
 			menu:AddOption("Баним", function()
-				print("Предупреждения")
+				SendVote(row:GetValue(2),"1")
 			end):SetIcon("icon16/tick.png")
 			
 			menu:AddOption("Не баним", function()
-				print("Предупреждения")
+				SendVote(row:GetValue(2),"0")
 			end):SetIcon("icon16/cross.png")
 			
 			menu:AddOption("Копировать SteamID", function()
-				SetClipboardText(row:GetValue(3))
+				SetClipboardText(row:GetValue(2))
 			end):SetIcon("icon16/page_copy.png")
 			
 			menu.OnRemove = function()
@@ -328,4 +339,9 @@ end)
 net.Receive("MGB.AddReport",function(ln,ply)
 	local result = net.ReadString()
 	Derma_Message(result,"Отправка репорта","OK")
+end)
+
+net.Receive("MGB.AddVote",function(ln,ply)
+	local result = net.ReadString()
+	Derma_Message(result,"Голосование","OK")
 end)

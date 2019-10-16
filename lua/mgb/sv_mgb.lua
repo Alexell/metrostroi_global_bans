@@ -10,6 +10,7 @@
 util.AddNetworkString("MGB.MainMenu")
 util.AddNetworkString("MGB.Peports")
 util.AddNetworkString("MGB.AddReport")
+util.AddNetworkString("MGB.AddVote")
 MGB.BadPlayers = {}
 MGB.WaitPlayers = {}
 MGB.BannedPlayers = {}
@@ -58,6 +59,30 @@ net.Receive("MGB.AddReport",function(ln,ply)
 			result = "С сервера "..GetHostName().." уже отправляли репорт на этого игрока!"
 		end
 		net.Start("MGB.AddReport")
+			net.WriteString(result)
+		net.Send(ply)
+	end)
+end)
+
+net.Receive("MGB.AddVote",function(ln,ply)
+	local sid = net.ReadString()
+	local vote = net.ReadString()
+	local admin = ply:SteamID()
+	local params = {act="addvote",host=GetHostName(),ip=game.GetIPAddress(),sid=sid,vote=vote,admin=admin}
+	http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
+		local result = ""
+		if (code ~= 200 or body == "") then
+			print("[MGB] Web request failed! Please try later.")
+			result = "Ошибка запроса к API! Попробуйте повторить позже."
+		end
+		if body == "Server blocked" then
+			result = "Доступ к голосованиям для "..GetHostName().." заблокирован!\nОбратитесь к разработчику аддона."
+		elseif body == "Vote added" then
+			result = "Ваш голос учтен!"
+		elseif body == "Repeat vote" then
+			result = "С сервера "..GetHostName().." уже голосовали за этого игрока!"
+		end
+		net.Start("MGB.AddVote")
 			net.WriteString(result)
 		net.Send(ply)
 	end)
