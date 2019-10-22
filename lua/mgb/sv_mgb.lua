@@ -12,11 +12,13 @@ util.AddNetworkString("MGB.Peports")
 util.AddNetworkString("MGB.AddReport")
 util.AddNetworkString("MGB.AddVote")
 util.AddNetworkString("MGB.Events")
+util.AddNetworkString("MGB.Notice")
 MGB.BadPlayers = {}
 MGB.WaitPlayers = {}
 MGB.BannedPlayers = {}
 MGB.NeedBadNotice = false
 MGB.NeedWaitNotice = false
+MGB.LastEvent = {}
 
 net.Receive("MGB.Peports",function(ln,ply)
 	local sid = net.ReadString()
@@ -137,9 +139,12 @@ local function GetEvents()
 			return
 		end
 		if (body == "" or body == "Not found") then return end
-		net.Start("MGB.Events")
-			net.WriteTable(util.JSONToTable(body))
-		net.Broadcast()
+		if body ~= MGB.LastEvent then
+			MGB.LastEvent = body
+			net.Start("MGB.Events")
+				net.WriteTable(util.JSONToTable(body))
+			net.Broadcast()
+		end
 	end)
 end
 
@@ -203,11 +208,15 @@ end)
 hook.Add("PlayerInitialSpawn", "MGB.AdminNotice",function(ply)
 	if ply:IsAdmin() then
 		if MGB.NeedBadNotice == true then
-			ply:ChatPrint("[MGB] Появились новые игроки с репортами!")
+			net.Start("MGB.Notice")
+				net.WriteString("Появились новые игроки с репортами!")
+			net.Send(ply)
 			MGB.NeedBadNotice = false
 		end
 		if MGB.NeedWaitNotice == true then
-			ply:ChatPrint("[MGB] Появились новые игроки в голосовании за бан!")
+			net.Start("MGB.Notice")
+				net.WriteString("Появились новые игроки в голосовании за бан!")
+			net.Send(ply)
 			MGB.NeedWaitNotice = false
 		end
 	end

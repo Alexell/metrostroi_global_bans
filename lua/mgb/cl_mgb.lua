@@ -350,11 +350,14 @@ net.Receive("MGB.Events",function()
 	local tab = net.ReadTable()
 	for k,v in pairs(tab) do
 		if v.type == "report" then
-			chat.AddText(Color(0,148,255),"[MGB]",Color(255,255,255)," Игрок ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),"получил репорт на сервере ",Color(0,255,0),v.server)
+			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),"Игрок ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),"получил репорт на сервере ",Color(0,255,0),v.server)
 			chat.AddText(Color(0,148,255),"Репорт: ",Color(255,255,255),v.report)
 		elseif v.type == "ban" then
-			chat.AddText(Color(0,148,255),"[MGB]",Color(255,255,255)," Игрок ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),"получил глобальный бан.")
+			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),"Игрок ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),"получил глобальный бан.")
 		end
 	end
-
+end)
+net.Receive("MGB.Notice",function()
+	local message = net.ReadString()
+	chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),message)
 end)
