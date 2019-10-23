@@ -7,6 +7,7 @@
 ----------------------------------------------------------
 -- иконки GMod: http://www.famfamfam.com/lab/icons/silk/previews/index_abc.png
 
+gameevent.Listen("player_connect")
 util.AddNetworkString("MGB.MainMenu")
 util.AddNetworkString("MGB.Reports")
 util.AddNetworkString("MGB.AddReport")
@@ -189,6 +190,20 @@ local function GetAPIData(updater)
 		end)
 	end
 end
+
+local function PlayerBanned(sid)
+	for k,v in pairs(MGB.BannedPlayers) do
+		if sid == v.sid then return true end
+	end
+	return false
+end
+
+hook.Add("player_connect","MGB.Ban",function(data)
+	if PlayerBanned(data.networkid) then
+		game.KickID(data.networkid,"[MGB] You are banned on Metrostroi servers")
+		return
+	end
+end)
 
 timer.Create("MGB.Init",1,1,function() GetAPIData(false) end)
 timer.Create("MGB.Updater",60,0,function() GetAPIData(true) GetEvents() end)
