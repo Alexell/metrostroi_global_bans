@@ -8,7 +8,7 @@
 -- иконки GMod: http://www.famfamfam.com/lab/icons/silk/previews/index_abc.png
 
 util.AddNetworkString("MGB.MainMenu")
-util.AddNetworkString("MGB.Peports")
+util.AddNetworkString("MGB.Reports")
 util.AddNetworkString("MGB.AddReport")
 util.AddNetworkString("MGB.AddVote")
 util.AddNetworkString("MGB.Events")
@@ -20,7 +20,7 @@ MGB.NeedBadNotice = false
 MGB.NeedWaitNotice = false
 MGB.LastEvent = {}
 
-net.Receive("MGB.Peports",function(ln,ply)
+net.Receive("MGB.Reports",function(ln,ply)
 	local sid = net.ReadString()
 	local nick = net.ReadString()
 	local params = {act="getreports",host=GetHostName(),ip=game.GetIPAddress(),sid=sid}
@@ -28,16 +28,16 @@ net.Receive("MGB.Peports",function(ln,ply)
 		local tab = {}
 		if (code ~= 200 or body == "") then
 			print("[MGB] Web request failed! Please try later.")
-			tab = {result="Ошибка запроса к API! Попробуйте повторить позже."}
+			tab = {result="MGB.Messages.WebRequestFailed"}
 		end
 		if body == "Server blocked" then
-			tab = {result="Доступ к репортам для "..GetHostName().." заблокирован!\nОбратитесь к разработчику аддона."}
+			tab = {result="MGB.Messages.Serverblocked"}
 		elseif body == "Not found" then
-			tab = {result="Репортов не найдено!"}
+			tab = {result="MGB.Messages.NoReports"}
 		else
 			tab = util.JSONToTable(body)
 		end
-		net.Start("MGB.Peports")
+		net.Start("MGB.Reports")
 			net.WriteTable(tab)
 			net.WriteString(nick)
 		net.Send(ply)
@@ -54,14 +54,14 @@ net.Receive("MGB.AddReport",function(ln,ply)
 		local result = ""
 		if (code ~= 200 or body == "") then
 			print("[MGB] Web request failed! Please try later.")
-			result = "Ошибка запроса к API! Попробуйте повторить позже."
+			result = "MGB.Messages.WebRequestFailed"
 		end
 		if body == "Server blocked" then
-			result = "Доступ к репортам для "..GetHostName().." заблокирован!\nОбратитесь к разработчику аддона."
+			result = "MGB.Messages.Serverblocked"
 		elseif body == "Report added" then
-			result = "Репорт успешно отправлен!"
+			result = "MGB.Messages.ReportAdded"
 		elseif body == "Repeat report" then
-			result = "С сервера "..GetHostName().." уже отправляли репорт на этого игрока!"
+			result = "MGB.Messages.ReportRepeat"
 		end
 		net.Start("MGB.AddReport")
 			net.WriteString(result)
@@ -78,14 +78,14 @@ net.Receive("MGB.AddVote",function(ln,ply)
 		local result = ""
 		if (code ~= 200 or body == "") then
 			print("[MGB] Web request failed! Please try later.")
-			result = "Ошибка запроса к API! Попробуйте повторить позже."
+			result = "MGB.Messages.WebRequestFailed"
 		end
 		if body == "Server blocked" then
-			result = "Доступ к голосованиям для "..GetHostName().." заблокирован!\nОбратитесь к разработчику аддона."
+			result = "MGB.Messages.Serverblocked"
 		elseif body == "Vote added" then
-			result = "Ваш голос учтен!"
+			result = "MGB.Messages.VoteAdded"
 		elseif body == "Repeat vote" then
-			result = "С сервера "..GetHostName().." уже голосовали за этого игрока!"
+			result = "MGB.Messages.VoteRepeat"
 		end
 		net.Start("MGB.AddVote")
 			net.WriteString(result)
@@ -209,13 +209,13 @@ hook.Add("PlayerInitialSpawn", "MGB.AdminNotice",function(ply)
 	if ply:IsAdmin() then
 		if MGB.NeedBadNotice == true then
 			net.Start("MGB.Notice")
-				net.WriteString("Появились новые игроки с репортами!")
+				net.WriteString("MGB.Messages.NoticeBad")
 			net.Send(ply)
 			MGB.NeedBadNotice = false
 		end
 		if MGB.NeedWaitNotice == true then
 			net.Start("MGB.Notice")
-				net.WriteString("Появились новые игроки в голосовании за бан!")
+				net.WriteString("MGB.Messages.NoticeWait")
 			net.Send(ply)
 			MGB.NeedWaitNotice = false
 		end

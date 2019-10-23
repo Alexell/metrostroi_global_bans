@@ -10,7 +10,7 @@ local function T(str,...)
 end
 
 local function GetReports(sid,nick)
-	net.Start("MGB.Peports")
+	net.Start("MGB.Reports")
 		net.WriteString(sid)
 		net.WriteString(nick)
 	net.SendToServer()
@@ -33,7 +33,7 @@ end
 
 local function AddReport(sid,nick)
 	local frame = vgui.Create("DFrame")
-	frame:SetTitle("Отправка репорта на игрока "..nick)
+	frame:SetTitle(T("MGB.GUI.AddReport.Title").." "..nick)
 	frame:SetIcon("icon16/error_add.png")
 	frame:SetSize(385,185)
 	frame:Center()
@@ -41,20 +41,19 @@ local function AddReport(sid,nick)
 
 	local rules = vgui.Create("DLabel",frame)
 	rules:SetPos(10,30)
-	rules:SetText("Основные заметки и правила перед отправкой репорта.\nБла бла бла\nбла бла бла")
+	rules:SetText(T("MGB.GUI.AddReport.Rules"))
 	rules:SizeToContents()
 	
 	local report = vgui.Create("DTextEntry",frame)
 	report:SetPos(10,100)
 	report:SetSize(365,45)
-	--note:SetText(v.note)
 	report:SetMultiline(true)
 	report:SetUpdateOnType(true)
 
 	local head = vgui.Create("DLabel",frame)
 	local posx,posy = report:GetPos()
 	head:SetPos(10,posy-15)
-	head:SetText("Текст репорта:")
+	head:SetText(T("MGB.GUI.AddReport.Headline")..":")
 	head:SizeToContents()
 	local maxtext = ""
 	report.OnValueChange = function(self,str)
@@ -66,18 +65,18 @@ local function AddReport(sid,nick)
 			report:SetText(maxtext)
 			return
 		end
-		head:SetText("Текст репорта: осталось "..awail.." символа(ов).")
+		head:SetText(T("MGB.GUI.AddReport.Headline")..": "..T("MGB.GUI.AddReport.Textleft").." "..awail.." "..T("MGB.GUI.AddReport.Characters"))
 		head:SizeToContents()
 	end
 	
 	local send = vgui.Create("DButton",frame)
 	send:SetSize(70,22)
 	send:SetPos((frame:GetWide()/2)-(send:GetWide()/2),(frame:GetTall()-send:GetTall()-10))
-	send:SetText("Отправить")
+	send:SetText(T("MGB.GUI.AddReport.Send"))
 	
 	send.DoClick = function()
 		if (report:GetText() == "") then
-			Derma_Message("Укажите текст репорта!","Отправка репорта на игрока "..nick,"OK")
+			Derma_Message(T("MGB.GUI.AddReport.TextEmpty").."!",T("MGB.GUI.AddReport.Title").." "..nick,"OK")
 			return
 		end
 		SendReport(sid,nick,report:GetText())
@@ -87,10 +86,10 @@ end
 
 local function ShowPeports(reports,nick)
 	if reports.result then
-		Derma_Message(reports.result,"Репорты на игрока "..nick,"OK")
+		Derma_Message(T(reports.result,GetHostName()),T("MGB.GUI.Reports.Title").." "..nick,"OK")
 	else
 		local frame = vgui.Create("DFrame")
-		frame:SetTitle("Репорты на игрока "..nick)
+		frame:SetTitle(T("MGB.GUI.Reports.Title").." "..nick)
 		frame:SetIcon("icon16/error.png")
 		local w = 400
 		local h = 295
@@ -114,7 +113,7 @@ local function ShowPeports(reports,nick)
 			panel:SetSize(400,80)
 			local label = vgui.Create("DLabel",panel)
 			label:SetPos(10,5)
-			label:SetText("Сервер: "..v.server.." | Дата: "..v.date)
+			label:SetText(T("MGB.GUI.Reports.Server")..": "..v.server.." | "..T("MGB.GUI.Reports.Date")..": "..v.date)
 			label:SizeToContents()
 			label:SetDark(1)
 			local note = vgui.Create("DTextEntry",panel)
@@ -149,19 +148,19 @@ local function ShowMainMenu(bads,waits,bans)
 
 	local players = vgui.Create("DPanel",tab)
 	players:SetSize(tab:GetWide(),tab:GetTall())
-	tab:AddSheet("Игроки онлайн",players,"icon16/group.png",false,false)
+	tab:AddSheet(T("MGB.GUI.Tabs.Online.Title"),players,"icon16/group.png",false,false)
 
 	local bad_players = vgui.Create( "DPanel", tab )
 	bad_players:SetSize(tab:GetWide(),tab:GetTall())
-	tab:AddSheet("Имеющие репорты",bad_players,"icon16/group_error.png",false,false)
+	tab:AddSheet(T("MGB.GUI.Tabs.Bad.Title"),bad_players,"icon16/group_error.png",false,false)
 	
 	local wait_players = vgui.Create( "DPanel", tab )
 	wait_players:SetSize(tab:GetWide(),tab:GetTall())
-	tab:AddSheet("Голосование за бан",wait_players,"icon16/chart_bar.png",false,false)
+	tab:AddSheet(T("MGB.GUI.Tabs.Wait.Title"),wait_players,"icon16/chart_bar.png",false,false)
 	
 	local banned_players = vgui.Create( "DPanel", tab )
 	banned_players:SetSize(tab:GetWide(),tab:GetTall())
-	tab:AddSheet("Глобальные баны",banned_players,"icon16/exclamation.png",false,false)
+	tab:AddSheet(T("MGB.GUI.Tabs.Ban.Title"),banned_players,"icon16/exclamation.png",false,false)
 	
 	tab.OnRemove = function()
 		MGB.BadList = nil
@@ -171,9 +170,9 @@ local function ShowMainMenu(bads,waits,bans)
 	
 	-- игроки онлайн
 	local player_list = vgui.Create("DListView",players)
-	player_list:SetMultiSelect( false )
-	player_list:AddColumn("Ник")
-	player_list:AddColumn("Группа")
+	player_list:SetMultiSelect(false)
+	player_list:AddColumn(T("MGB.Labels.Nick"))
+	player_list:AddColumn(T("MGB.Labels.Group"))
 	player_list:AddColumn("SteamID")
 	player_list:SetSize(players:GetWide()-26,players:GetTall())
 	player_list:SetPos(0,0)
@@ -184,15 +183,15 @@ local function ShowMainMenu(bads,waits,bans)
 			row:SetSelected(true)
 			local menu = DermaMenu()
 
-			menu:AddOption("Список репортов", function()
+			menu:AddOption(T("MGB.Labels.ReportList"), function()
 				GetReports(row:GetValue(3),row:GetValue(1))
 			end):SetIcon("icon16/error.png")
 
-			menu:AddOption("Отправить репорт", function()
+			menu:AddOption(T("MGB.GUI.Tabs.Online.SendReport"), function()
 				AddReport(row:GetValue(3),row:GetValue(1))
 			end):SetIcon("icon16/error_add.png")
 			
-			menu:AddOption("Копировать SteamID", function()
+			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(3))
 			end):SetIcon("icon16/page_copy.png")
 			
@@ -206,10 +205,10 @@ local function ShowMainMenu(bads,waits,bans)
 	
 	-- имеющие репорты
 	MGB.BadList = vgui.Create("DListView",bad_players)
-	MGB.BadList:SetMultiSelect( false )
-	MGB.BadList:AddColumn("Ник")
+	MGB.BadList:SetMultiSelect(false)
+	MGB.BadList:AddColumn(T("MGB.Labels.Nick"))
 	MGB.BadList:AddColumn("SteamID")
-	MGB.BadList:AddColumn("Репортов")
+	MGB.BadList:AddColumn(T("MGB.Labels.Reports"))
 	MGB.BadList:SetSize(bad_players:GetWide()-26,bad_players:GetTall())
 	MGB.BadList:SetPos(0,0)
 	
@@ -219,11 +218,11 @@ local function ShowMainMenu(bads,waits,bans)
 			row:SetSelected(true)
 			local menu = DermaMenu()
 
-			menu:AddOption("Список репортов", function()
+			menu:AddOption(T("MGB.Labels.ReportList"), function()
 				GetReports(row:GetValue(2),row:GetValue(1))
 			end):SetIcon("icon16/error.png")
 			
-			menu:AddOption("Копировать SteamID", function()
+			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(3))
 			end):SetIcon("icon16/page_copy.png")
 			
@@ -237,12 +236,12 @@ local function ShowMainMenu(bads,waits,bans)
 	
 	-- голосование за бан
 	MGB.WaitList = vgui.Create("DListView",wait_players)
-	MGB.WaitList:SetMultiSelect( false )
-	MGB.WaitList:AddColumn("Ник")
+	MGB.WaitList:SetMultiSelect(false)
+	MGB.WaitList:AddColumn(T("MGB.Labels.Nick"))
 	MGB.WaitList:AddColumn("SteamID")
-	MGB.WaitList:AddColumn("Репортов")
-	MGB.WaitList:AddColumn("За")
-	MGB.WaitList:AddColumn("Против")
+	MGB.WaitList:AddColumn(T("MGB.Labels.Reports"))
+	MGB.WaitList:AddColumn(T("MGB.GUI.Tabs.Wait.Yes"))
+	MGB.WaitList:AddColumn(T("MGB.GUI.Tabs.Wait.No"))
 	MGB.WaitList:SetSize(wait_players:GetWide()-26,wait_players:GetTall())
 	MGB.WaitList:SetPos(0,0)
 	
@@ -252,15 +251,15 @@ local function ShowMainMenu(bads,waits,bans)
 			row:SetSelected(true)
 			local menu = DermaMenu()
 
-			menu:AddOption("Баним", function()
+			menu:AddOption(T("MGB.GUI.Tabs.Wait.VoteYes"), function()
 				SendVote(row:GetValue(2),"1")
 			end):SetIcon("icon16/tick.png")
 			
-			menu:AddOption("Не баним", function()
+			menu:AddOption(T("MGB.GUI.Tabs.Wait.VoteNo"), function()
 				SendVote(row:GetValue(2),"0")
 			end):SetIcon("icon16/cross.png")
 			
-			menu:AddOption("Копировать SteamID", function()
+			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(2))
 			end):SetIcon("icon16/page_copy.png")
 			
@@ -274,10 +273,10 @@ local function ShowMainMenu(bads,waits,bans)
 	
 	-- глобальные баны
 	MGB.BanList = vgui.Create("DListView",banned_players)
-	MGB.BanList:SetMultiSelect( false )
-	MGB.BanList:AddColumn("Ник")
+	MGB.BanList:SetMultiSelect(false)
+	MGB.BanList:AddColumn(T("MGB.Labels.Nick"))
 	MGB.BanList:AddColumn("SteamID")
-	MGB.BanList:AddColumn("Дата блокировки")
+	MGB.BanList:AddColumn(T("MGB.GUI.Tabs.Ban.Date"))
 	MGB.BanList:SetSize(banned_players:GetWide()-26,banned_players:GetTall())
 	MGB.BanList:SetPos(0,0)
 	
@@ -287,10 +286,10 @@ local function ShowMainMenu(bads,waits,bans)
 			row:SetSelected(true)
 			local menu = DermaMenu()
 			
-			menu:AddOption("Список репортов", function()
+			menu:AddOption(T("MGB.Labels.ReportList"), function()
 				GetReports(row:GetValue(2),row:GetValue(1))
 			end):SetIcon("icon16/error.png")
-			menu:AddOption("Копировать SteamID", function()
+			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(3))
 			end):SetIcon("icon16/page_copy.png")
 			
@@ -332,32 +331,32 @@ net.Receive("MGB.MainMenu",function(ln,ply)
 	ShowMainMenu(net.ReadTable(),net.ReadTable(),net.ReadTable())
 end)
 
-net.Receive("MGB.Peports",function(ln,ply)
+net.Receive("MGB.Reports",function(ln,ply)
 	ShowPeports(net.ReadTable(),net.ReadString())
 end)
 
 net.Receive("MGB.AddReport",function(ln,ply)
 	local result = net.ReadString()
-	Derma_Message(result,"Отправка репорта","OK")
+	Derma_Message(T(result,GetHostName()),T("MGB.GUI.AddReport.Title"),"OK")
 end)
 
 net.Receive("MGB.AddVote",function(ln,ply)
 	local result = net.ReadString()
-	Derma_Message(result,"Голосование","OK")
+	Derma_Message(T(result,GetHostName()),T("MGB.GUI.Tabs.Wait.Vote"),"OK")
 end)
 
 net.Receive("MGB.Events",function()
 	local tab = net.ReadTable()
 	for k,v in pairs(tab) do
 		if v.type == "report" then
-			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),"Игрок ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),"получил репорт на сервере ",Color(0,255,0),v.server)
-			chat.AddText(Color(0,148,255),"Репорт: ",Color(255,255,255),v.report)
+			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),T("MGB.Labels.Player").." ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),T("MGB.Messages.EventReport").." ",Color(0,255,0),v.server)
+			chat.AddText(Color(0,148,255),T("MGB.Labels.Report")": ",Color(255,255,255),v.report)
 		elseif v.type == "ban" then
-			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),"Игрок ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),"получил глобальный бан.")
+			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),T("MGB.Labels.Player").." ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),T("MGB.Messages.EventBan")..".")
 		end
 	end
 end)
 net.Receive("MGB.Notice",function()
 	local message = net.ReadString()
-	chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),message)
+	chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),T(message).."!")
 end)
