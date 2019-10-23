@@ -191,6 +191,8 @@ local function ShowMainMenu(bads,waits,bans)
 				AddReport(row:GetValue(3),row:GetValue(1))
 			end):SetIcon("icon16/error_add.png")
 			
+			menu:AddSpacer()
+			
 			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(3))
 			end):SetIcon("icon16/page_copy.png")
@@ -222,6 +224,8 @@ local function ShowMainMenu(bads,waits,bans)
 				GetReports(row:GetValue(2),row:GetValue(1))
 			end):SetIcon("icon16/error.png")
 			
+			menu:AddSpacer()
+			
 			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(3))
 			end):SetIcon("icon16/page_copy.png")
@@ -251,6 +255,10 @@ local function ShowMainMenu(bads,waits,bans)
 			row:SetSelected(true)
 			local menu = DermaMenu()
 
+			local header = menu:AddOption(T("MGB.GUI.Tabs.Wait.VoteHead"))
+			header:SetTextInset(10,0)
+			header.PaintOver = function(self,w,h) surface.SetDrawColor(0,0,0,50) surface.DrawRect(0,0,w,h) end
+
 			menu:AddOption(T("MGB.GUI.Tabs.Wait.VoteYes"), function()
 				SendVote(row:GetValue(2),"1")
 			end):SetIcon("icon16/tick.png")
@@ -258,6 +266,8 @@ local function ShowMainMenu(bads,waits,bans)
 			menu:AddOption(T("MGB.GUI.Tabs.Wait.VoteNo"), function()
 				SendVote(row:GetValue(2),"0")
 			end):SetIcon("icon16/cross.png")
+			
+			menu:AddSpacer()
 			
 			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(2))
@@ -289,6 +299,9 @@ local function ShowMainMenu(bads,waits,bans)
 			menu:AddOption(T("MGB.Labels.ReportList"), function()
 				GetReports(row:GetValue(2),row:GetValue(1))
 			end):SetIcon("icon16/error.png")
+			
+			menu:AddSpacer()
+			
 			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
 				SetClipboardText(row:GetValue(3))
 			end):SetIcon("icon16/page_copy.png")
@@ -350,7 +363,6 @@ net.Receive("MGB.Events",function()
 	for k,v in pairs(tab) do
 		if v.type == "report" then
 			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),T("MGB.Labels.Player").." ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),T("MGB.Messages.EventReport").." ",Color(0,255,0),v.server)
-			chat.AddText(Color(0,148,255),T("MGB.Labels.Report")": ",Color(255,255,255),v.report)
 		elseif v.type == "ban" then
 			chat.AddText(Color(0,148,255),"[MGB] ",Color(255,255,255),T("MGB.Labels.Player").." ",Color(0,255,0),v.nick.." ("..v.sid..") ",Color(255,255,255),T("MGB.Messages.EventBan")..".")
 		end

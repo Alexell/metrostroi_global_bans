@@ -61,6 +61,8 @@ net.Receive("MGB.AddReport",function(ln,ply)
 			result = "MGB.Messages.Serverblocked"
 		elseif body == "Report added" then
 			result = "MGB.Messages.ReportAdded"
+		elseif body == "Report rejected" then
+			result = "MGB.Messages.ReportRejected"
 		elseif body == "Repeat report" then
 			result = "MGB.Messages.ReportRepeat"
 		end
