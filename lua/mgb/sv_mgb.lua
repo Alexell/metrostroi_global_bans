@@ -7,6 +7,7 @@
 ----------------------------------------------------------
 -- иконки GMod: http://www.famfamfam.com/lab/icons/silk/previews/index_abc.png
 
+CreateConVar("mgb_events", 1, {FCVAR_ARCHIVE})
 gameevent.Listen("player_connect")
 util.AddNetworkString("MGB.MainMenu")
 util.AddNetworkString("MGB.Reports")
@@ -135,20 +136,22 @@ local function GetBannedPlayers()
 end
 
 local function GetEvents()
-	local params = {act="getevents",host=GetHostName(),ip=game.GetIPAddress()}
-	http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
-		if code ~= 200 then
-			print("[MGB] Web request failed! Code: "..code)
-			return
-		end
-		if (body == "" or body == "Not found") then return end
-		if body ~= MGB.LastEvent then
-			MGB.LastEvent = body
-			net.Start("MGB.Events")
-				net.WriteTable(util.JSONToTable(body))
-			net.Broadcast()
-		end
-	end)
+	if GetConVarNumber("mgb_events") == 1 then
+		local params = {act="getevents",host=GetHostName(),ip=game.GetIPAddress()}
+		http.Post("https://api.alexell.ru/metrostroi/mgb/",params,function(body,len,headers,code)
+			if code ~= 200 then
+				print("[MGB] Web request failed! Code: "..code)
+				return
+			end
+			if (body == "" or body == "Not found") then return end
+			if body ~= MGB.LastEvent then
+				MGB.LastEvent = body
+				net.Start("MGB.Events")
+					net.WriteTable(util.JSONToTable(body))
+				net.Broadcast()
+			end
+		end)
+	end
 end
 
 local function GetAPIData(updater)

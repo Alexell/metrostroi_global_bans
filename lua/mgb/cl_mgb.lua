@@ -57,7 +57,8 @@ local function AddReport(sid,nick)
 	head:SizeToContents()
 	local maxtext = ""
 	report.OnValueChange = function(self,str)
-		local awail = 150-#(str:gsub('[\128-\191]',''))
+		--local awail = 150-#(str:gsub('[\128-\191]',''))
+		local awail = 150-utf8.len(str)
 		if awail == 0 then
 			maxtext = str
 			report:SetText(maxtext)
@@ -121,9 +122,7 @@ local function ShowPeports(reports,nick)
 			note:SetSize(365,45)
 			note:SetText(v.note)
 			note:SetMultiline(true)
-			note.AllowInput = function() -- блокировка от изменения
-				return true
-			end
+			note.OnChange = function() note:SetText(v.note) end
 		end
 	end
 end
@@ -137,7 +136,11 @@ local function ShowMainMenu(bads,waits,bans)
 	frame:SetSize(600,300)
 	frame:Center()
 	frame:SetTitle("Metrostroi Global Bans [MGB]")
+	frame.btnMaxim:SetVisible(false)
+	frame.btnMinim:SetVisible(false)
 	frame:SetVisible(true)
+	frame:SetSizable(false)
+	frame:SetDeleteOnClose(true)
 	frame:SetIcon("icon16/shield.png")
 	frame:MakePopup()
 	
@@ -168,6 +171,10 @@ local function ShowMainMenu(bads,waits,bans)
 		MGB.BanList = nil
 	end
 	
+	frame.OnClose = function()
+		tab:Remove()
+	end
+	
 	-- игроки онлайн
 	local player_list = vgui.Create("DListView",players)
 	player_list:SetMultiSelect(false)
@@ -189,6 +196,7 @@ local function ShowMainMenu(bads,waits,bans)
 
 			menu:AddOption(T("MGB.GUI.Tabs.Online.SendReport"), function()
 				AddReport(row:GetValue(3),row:GetValue(1))
+				frame:Close()
 			end):SetIcon("icon16/error_add.png")
 			
 			menu:AddSpacer()
@@ -227,7 +235,7 @@ local function ShowMainMenu(bads,waits,bans)
 			menu:AddSpacer()
 			
 			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
-				SetClipboardText(row:GetValue(3))
+				SetClipboardText(row:GetValue(2))
 			end):SetIcon("icon16/page_copy.png")
 			
 			menu.OnRemove = function()
@@ -241,13 +249,14 @@ local function ShowMainMenu(bads,waits,bans)
 	-- голосование за бан
 	MGB.WaitList = vgui.Create("DListView",wait_players)
 	MGB.WaitList:SetMultiSelect(false)
-	MGB.WaitList:AddColumn(T("MGB.Labels.Nick"))
-	MGB.WaitList:AddColumn("SteamID")
-	MGB.WaitList:AddColumn(T("MGB.Labels.Reports"))
-	MGB.WaitList:AddColumn(T("MGB.GUI.Tabs.Wait.Yes"))
-	MGB.WaitList:AddColumn(T("MGB.GUI.Tabs.Wait.No"))
 	MGB.WaitList:SetSize(wait_players:GetWide()-26,wait_players:GetTall())
 	MGB.WaitList:SetPos(0,0)
+	MGB.WaitList:AddColumn(T("MGB.Labels.Nick")):SetFixedWidth(200)
+	MGB.WaitList:AddColumn("SteamID"):SetFixedWidth(134)
+	MGB.WaitList:AddColumn(T("MGB.Labels.Reports")):SetFixedWidth(80)
+	MGB.WaitList:AddColumn(T("MGB.GUI.Tabs.Wait.Yes")):SetFixedWidth(80)
+	MGB.WaitList:AddColumn(T("MGB.GUI.Tabs.Wait.No")):SetFixedWidth(80)
+	
 	
 		-- меню
 		MGB.WaitList.OnRowRightClick = function( lst, id, row )
@@ -261,10 +270,12 @@ local function ShowMainMenu(bads,waits,bans)
 
 			menu:AddOption(T("MGB.GUI.Tabs.Wait.VoteYes"), function()
 				SendVote(row:GetValue(2),"1")
+				frame:Close()
 			end):SetIcon("icon16/tick.png")
 			
 			menu:AddOption(T("MGB.GUI.Tabs.Wait.VoteNo"), function()
 				SendVote(row:GetValue(2),"0")
+				frame:Close()
 			end):SetIcon("icon16/cross.png")
 			
 			menu:AddSpacer()
@@ -303,7 +314,7 @@ local function ShowMainMenu(bads,waits,bans)
 			menu:AddSpacer()
 			
 			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()
-				SetClipboardText(row:GetValue(3))
+				SetClipboardText(row:GetValue(2))
 			end):SetIcon("icon16/page_copy.png")
 			
 			menu.OnRemove = function()
@@ -326,12 +337,34 @@ local function ShowMainMenu(bads,waits,bans)
 	
 	-- игроки с репортами
 	for k,v in pairs(bads) do
-		MGB.BadList:AddLine(v.nick,v.sid,v.reps)
+		local reps = tonumber(v.reps)
+		local color = "0 0 0 0"
+		if reps == 1 then
+			color = "0 255 0 50"
+		end
+		if reps == 2 then
+			color = "255 255 0 50"
+		end
+		if reps >= 3 then
+			color = "255 0 0 50"
+		end
+		MGB.BadList:AddLine(v.nick,v.sid,v.reps).PaintOver = function(self,w,h) surface.SetDrawColor(string.ToColor(color)) surface.DrawRect(0,0,w,h) end
 	end
 	
 	-- игроки на голосовании
 	for k,v in pairs(waits) do
-		MGB.WaitList:AddLine(v.nick,v.sid,v.reps,v.votesY,v.votesN)
+		local y = tonumber(v.votesY)
+		local color = "0 0 0 0"
+		if y == 1 then
+			color = "0 255 0 50"
+		end
+		if y == 2 then
+			color = "255 255 0 50"
+		end
+		if y >= 3 then
+			color = "255 0 0 50"
+		end
+		MGB.WaitList:AddLine(v.nick,v.sid,v.reps,v.votesY,v.votesN).PaintOver = function(self,w,h) surface.SetDrawColor(string.ToColor(color)) surface.DrawRect(0,0,w,h) end
 	end
 	
 	-- забаненные игроки
