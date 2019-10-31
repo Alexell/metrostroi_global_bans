@@ -240,6 +240,11 @@ local function ShowMainMenu(bads,waits,bans)
 				GetReports(row:GetValue(2),row:GetValue(1))
 			end):SetIcon("icon16/error.png")
 			
+			menu:AddOption(T("MGB.GUI.Tabs.Online.SendReport"), function()
+				AddReport(row:GetValue(2),row:GetValue(1))
+				frame:Close()
+			end):SetIcon("icon16/error_add.png")
+			
 			menu:AddSpacer()
 			
 			menu:AddOption(T("MGB.Labels.Copy").." SteamID", function()

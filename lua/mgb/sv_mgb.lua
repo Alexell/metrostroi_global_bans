@@ -211,7 +211,7 @@ hook.Add("player_connect","MGB.Ban",function(data)
 end)
 
 timer.Create("MGB.Init",1,1,function() GetAPIData(false) end)
-timer.Create("MGB.Updater",60,0,function() GetAPIData(true) GetEvents() end)
+timer.Create("MGB.Updater",300,0,function() GetAPIData(true) GetEvents() end)
 
 hook.Add("PlayerButtonDown","MGB.ShowMenu",function(ply,key)
 	if (key == KEY_F6 and ply:IsAdmin()) then
