@@ -6,6 +6,8 @@
 
 **Languages:** RU, EN
 
+![Metrostroi Global Bans](https://mss.community/images/addons/mgb.jpg)
+
 **Описание:**
 
 MGB - это система глобальных банов для серверов Метростроя, которая позволит очистить Метрострой от игроков, приносящих только вред.
