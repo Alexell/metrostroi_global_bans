@@ -32,9 +32,9 @@ net.Receive("MGB.Reports",function(ln,ply)
 			print("[MGB] Web request failed! Please try later.")
 			tab = {result="MGB.Messages.WebRequestFailed"}
 		end
-		if body == "Server blocked" then
+		if body:find("Server blocked") then
 			tab = {result="MGB.Messages.Serverblocked"}
-		elseif body == "Not found" then
+		elseif body:find("Not found") then
 			tab = {result="MGB.Messages.NoReports"}
 		else
 			tab = util.JSONToTable(body)
@@ -58,15 +58,15 @@ net.Receive("MGB.AddReport",function(ln,ply)
 			print("[MGB] Web request failed! Please try later.")
 			result = "MGB.Messages.WebRequestFailed"
 		end
-		if body == "Server blocked" then
+		if body:find("Server blocked") then
 			result = "MGB.Messages.Serverblocked"
-		elseif body == "Report added" then
+		elseif body:find("Report added") then
 			result = "MGB.Messages.ReportAdded"
-		elseif body == "Report rejected" then
+		elseif body:find("Report rejected") then
 			result = "MGB.Messages.ReportRejected"
-		elseif body == "Repeat report" then
+		elseif body:find("Repeat report") then
 			result = "MGB.Messages.ReportRepeat"
-		elseif body == "Invalid SteamID" then
+		elseif body:find("Invalid SteamID") then
 			result = "MGB.Messages.InvalidSID"
 		end
 		net.Start("MGB.AddReport")
@@ -86,11 +86,11 @@ net.Receive("MGB.AddVote",function(ln,ply)
 			print("[MGB] Web request failed! Please try later.")
 			result = "MGB.Messages.WebRequestFailed"
 		end
-		if body == "Server blocked" then
+		if body:find("Server blocked") then
 			result = "MGB.Messages.Serverblocked"
-		elseif body == "Vote added" then
+		elseif body:find("Vote added") then
 			result = "MGB.Messages.VoteAdded"
-		elseif body == "Repeat vote" then
+		elseif body:find("Repeat vote") then
 			result = "MGB.Messages.VoteRepeat"
 		end
 		net.Start("MGB.AddVote")
@@ -107,9 +107,9 @@ local function GetBadPlayers()
 			print("[MGB] Web request failed! Code: "..code)
 			return
 		end
-		if (body == "" or body == "Not found") then return end
-		if (body == "" or body == "Not found") then return end
-		MGB.BadPlayers = util.JSONToTable(body)
+		if (body == "" or body:find("Not found")) then return end
+		if (body == "" or body:find("Not found")) then return end
+		MGB.BadPlayers = util.JSONToTable(body) or {}
 	end)
 end
 
@@ -120,8 +120,8 @@ local function GetWaitPlayers()
 			print("[MGB] Web request failed! Code: "..code)
 			return
 		end
-		if (body == "" or body == "Not found") then return end
-		MGB.WaitPlayers = util.JSONToTable(body)
+		if (body == "" or body:find("Not found")) then return end
+		MGB.WaitPlayers = util.JSONToTable(body) or {}
 	end)
 end
 
@@ -132,8 +132,8 @@ local function GetBannedPlayers()
 			print("[MGB] Web request failed! Code: "..code)
 			return
 		end
-		if (body == "" or body == "Not found") then return end
-		MGB.BannedPlayers = util.JSONToTable(body)
+		if (body == "" or body:find("Not found")) then return end
+		MGB.BannedPlayers = util.JSONToTable(body) or {}
 	end)
 end
 
@@ -145,7 +145,7 @@ local function GetEvents()
 				print("[MGB] Web request failed! Code: "..code)
 				return
 			end
-			if (body == "" or body == "Not found") then return end
+			if (body == "" or body:find("Not found")) then return end
 			if body ~= MGB.LastEvent then
 				MGB.LastEvent = body
 				net.Start("MGB.Events")
