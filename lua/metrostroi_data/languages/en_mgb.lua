@@ -5,6 +5,7 @@ AuthorTextMGB = Agent Smith (STEAM_0:1:15049625)
 
 MGB.GUI.Tabs.Online.Title = Players online
 MGB.GUI.Tabs.Online.SendReport = Send report
+MGB.GUI.Tabs.Online.ReportBy = Report by
 MGB.GUI.Tabs.Bad.Title = Players with reports
 MGB.GUI.Tabs.Wait.Title = Vote for ban
 MGB.GUI.Tabs.Wait.Yes = Pros
@@ -20,7 +21,8 @@ MGB.GUI.AddReport.Rules = Notice:\n1. One server can only send one report on a p
 MGB.GUI.AddReport.Headline = Report info
 MGB.GUI.AddReport.Textleft = left
 MGB.GUI.AddReport.Characters = symbol(s)
-MGB.GUI.AddReport.TextEmpty = Specify the report info
+MGB.GUI.AddReport.TextEmpty = Please specify the report info
+MGB.GUI.AddReport.SIDEmpty = Please specify SteamID
 MGB.GUI.AddReport.Send = Send
 MGB.GUI.Reports.Title = Player's reports
 MGB.GUI.Reports.Server = Server
@@ -41,6 +43,7 @@ MGB.Messages.NoReports = No reports found!
 MGB.Messages.ReportAdded = Report sent successfully!
 MGB.Messages.ReportRejected = Voting for this player is currently in progress!
 MGB.Messages.ReportRepeat = Server %s already sent report on this player!
+MGB.Messages.InvalidSID = Invalid SteamID
 MGB.Messages.VoteAdded = Your vote has been sent!
 MGB.Messages.VoteRepeat = Server %s already voted for this player!
 

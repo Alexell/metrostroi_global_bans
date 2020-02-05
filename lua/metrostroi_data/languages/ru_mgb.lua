@@ -5,6 +5,7 @@ AuthorTextMGB = Alexell (STEAM_0:1:125018747)
 
 MGB.GUI.Tabs.Online.Title = Игроки онлайн
 MGB.GUI.Tabs.Online.SendReport = Отправить репорт
+MGB.GUI.Tabs.Online.ReportBy = Репорт по
 MGB.GUI.Tabs.Bad.Title = Имеющие репорты
 MGB.GUI.Tabs.Wait.Title = Голосование за бан
 MGB.GUI.Tabs.Wait.Yes = За бан
@@ -21,6 +22,7 @@ MGB.GUI.AddReport.Headline = Текст репорта
 MGB.GUI.AddReport.Textleft = осталось
 MGB.GUI.AddReport.Characters = символа(ов)
 MGB.GUI.AddReport.TextEmpty = Укажите текст репорта
+MGB.GUI.AddReport.SIDEmpty = Укажите SteamID
 MGB.GUI.AddReport.Send = Отправить
 MGB.GUI.Reports.Title = Репорты на игрока
 MGB.GUI.Reports.Server = Сервер
@@ -41,6 +43,7 @@ MGB.Messages.NoReports = Репортов не найдено!
 MGB.Messages.ReportAdded = Репорт успешно отправлен!
 MGB.Messages.ReportRejected = За бан игрока уже идет голосование!
 MGB.Messages.ReportRepeat = С сервера %s уже отправляли репорт на этого игрока!
+MGB.Messages.InvalidSID = Некорректный SteamID
 MGB.Messages.VoteAdded = Ваш голос учтен!
 MGB.Messages.VoteRepeat = С сервера %s уже голосовали за этого игрока!
 

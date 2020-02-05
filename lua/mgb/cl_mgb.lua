@@ -33,13 +33,13 @@ end
 
 local function AddReport(sid,nick)
 	local frame = vgui.Create("DFrame")
-	frame:SetTitle(T("MGB.GUI.AddReport.Title").." "..nick)
+	frame:SetTitle(T("MGB.GUI.AddReport.Title").." "..(nick or ""))
 	frame:SetIcon("icon16/error_add.png")
 	frame.btnMaxim:SetVisible(false)
 	frame.btnMinim:SetVisible(false)
 	frame:SetSizable(false)
 	frame:SetDeleteOnClose(true)
-	frame:SetSize(385,185)
+	if sid then frame:SetSize(385,185) else frame:SetSize(385,230) end
 	frame:Center()
 	frame:MakePopup()
 
@@ -48,8 +48,18 @@ local function AddReport(sid,nick)
 	rules:SetText(T("MGB.GUI.AddReport.Rules"))
 	rules:SizeToContents()
 	
+	local sid_edit
+	if not sid then
+		local head_sid = vgui.Create("DLabel",frame)
+		head_sid:SetPos(10,100)
+		head_sid:SetText("SteamID:")
+		sid_edit = vgui.Create("DTextEntry",frame)
+		sid_edit:SetPos(60,100)
+		sid_edit:SetSize(130,20)
+	end
+	
 	local report = vgui.Create("DTextEntry",frame)
-	report:SetPos(10,100)
+	if sid then report:SetPos(10,100) else report:SetPos(10,140) end
 	report:SetSize(365,45)
 	report:SetMultiline(true)
 	report:SetUpdateOnType(true)
@@ -80,11 +90,15 @@ local function AddReport(sid,nick)
 	send:SetText(T("MGB.GUI.AddReport.Send"))
 	
 	send.DoClick = function()
-		if (report:GetText() == "") then
-			Derma_Message(T("MGB.GUI.AddReport.TextEmpty").."!",T("MGB.GUI.AddReport.Title").." "..nick,"OK")
+		if (not sid and sid_edit:GetText() == "") then
+			Derma_Message(T("MGB.GUI.AddReport.SIDEmpty").."!",T("MGB.GUI.AddReport.Title").." "..(nick or ""),"OK")
 			return
 		end
-		SendReport(sid,nick,report:GetText())
+		if (report:GetText() == "") then
+			Derma_Message(T("MGB.GUI.AddReport.TextEmpty").."!",T("MGB.GUI.AddReport.Title").." "..(nick or ""),"OK")
+			return
+		end
+		SendReport((sid or sid_edit:GetText()),(nick or "-"),report:GetText())
 		frame:Close()
 	end
 end
@@ -159,6 +173,7 @@ local function ShowMainMenu(bads,waits,bans)
 
 	local players = vgui.Create("DPanel",tab)
 	players:SetSize(tab:GetWide(),tab:GetTall())
+	players:SetBackgroundColor(Color(0,0,0,0))
 	tab:AddSheet(T("MGB.GUI.Tabs.Online.Title"),players,"icon16/group.png",false,false)
 
 	local bad_players = vgui.Create( "DPanel", tab )
@@ -189,7 +204,7 @@ local function ShowMainMenu(bads,waits,bans)
 	player_list:AddColumn(T("MGB.Labels.Nick"))
 	player_list:AddColumn(T("MGB.Labels.Group"))
 	player_list:AddColumn("SteamID")
-	player_list:SetSize(players:GetWide()-26,players:GetTall())
+	player_list:SetSize(players:GetWide()-26,players:GetTall()-95)
 	player_list:SetPos(0,0)
 	
 		-- меню
@@ -219,6 +234,15 @@ local function ShowMainMenu(bads,waits,bans)
 				end
 			end
 			menu:Open()
+		end
+		
+		-- репорт по SteamID
+		local add_report = vgui.Create("DButton",players)
+		add_report:SetText(T("MGB.GUI.Tabs.Online.ReportBy").." SteamID")
+		add_report:SetSize(110,20)
+		add_report:SetPos(0,players:GetTall()-90)
+		add_report.DoClick = function()
+			AddReport(nil,nil)
 		end
 	
 	-- имеющие репорты

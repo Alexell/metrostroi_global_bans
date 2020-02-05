@@ -66,6 +66,8 @@ net.Receive("MGB.AddReport",function(ln,ply)
 			result = "MGB.Messages.ReportRejected"
 		elseif body == "Repeat report" then
 			result = "MGB.Messages.ReportRepeat"
+		elseif body == "Invalid SteamID" then
+			result = "MGB.Messages.InvalidSID"
 		end
 		net.Start("MGB.AddReport")
 			net.WriteString(result)
