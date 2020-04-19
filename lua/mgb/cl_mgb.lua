@@ -251,7 +251,7 @@ local function ShowMainMenu(bads,waits,bans)
 	MGB.BadList:AddColumn(T("MGB.Labels.Nick"))
 	MGB.BadList:AddColumn("SteamID")
 	MGB.BadList:AddColumn(T("MGB.Labels.Reports"))
-	MGB.BadList:SetSize(bad_players:GetWide()-26,bad_players:GetTall())
+	MGB.BadList:SetSize(bad_players:GetWide()-26,bad_players:GetTall()-70)
 	MGB.BadList:SetPos(0,0)
 	
 		-- меню
@@ -286,7 +286,7 @@ local function ShowMainMenu(bads,waits,bans)
 	-- голосование за бан
 	MGB.WaitList = vgui.Create("DListView",wait_players)
 	MGB.WaitList:SetMultiSelect(false)
-	MGB.WaitList:SetSize(wait_players:GetWide()-26,wait_players:GetTall())
+	MGB.WaitList:SetSize(wait_players:GetWide()-26,wait_players:GetTall()-70)
 	MGB.WaitList:SetPos(0,0)
 	MGB.WaitList:AddColumn(T("MGB.Labels.Nick")):SetFixedWidth(200)
 	MGB.WaitList:AddColumn("SteamID"):SetFixedWidth(134)
@@ -335,7 +335,7 @@ local function ShowMainMenu(bads,waits,bans)
 	MGB.BanList:AddColumn(T("MGB.Labels.Nick"))
 	MGB.BanList:AddColumn("SteamID")
 	MGB.BanList:AddColumn(T("MGB.GUI.Tabs.Ban.Date"))
-	MGB.BanList:SetSize(banned_players:GetWide()-26,banned_players:GetTall())
+	MGB.BanList:SetSize(banned_players:GetWide()-26,banned_players:GetTall()-70)
 	MGB.BanList:SetPos(0,0)
 	
 		-- меню
