@@ -6,7 +6,7 @@
 
 **Languages:** RU, EN
 
-![Metrostroi Global Bans](https://mss.community/images/addons/mgb.jpg)
+![Metrostroi Global Bans](https://mss-project.org/images/addons/mgb.jpg)
 
 **Описание:**
 
